@@ -1,4 +1,3 @@
-#!/usr/bin/python
 
 from flask import Flask
 from FlaskCheckers import checkers

@@ -42,7 +42,7 @@ def move():
         playerMoving = 2
     with open(os.path.join(DATA_DIR, gameID+'.json'), 'r') as f:
         gameJSON = f.read()
-    nGameJSON = makeMove(gameJSON, playerMoving, fromTup, toTup)
+    nGameJSON = tryMove(gameJSON, playerMoving, fromTup, toTup)
     if gameJSON == nGameJSON:
         return 'false'
     with open(os.path.join(DATA_DIR,  gameID+'.json'), 'w') as f:
