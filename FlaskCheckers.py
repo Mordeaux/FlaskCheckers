@@ -33,7 +33,7 @@ def loadJson():
     return gameJSON
 
 @checkers.route('/move')
-def move():
+def makeMove():
     playerMoving = 1
     gameID = request.args.get('game')
     fromTup = tuple([int(i) for i in list(request.args.get('from'))])
