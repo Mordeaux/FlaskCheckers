@@ -16,7 +16,7 @@ checkers = Blueprint('checkers', __name__, template_folder='templates', static_f
 @checkers.route('/')
 def game():
     team = 'home'
-    gameID = ''.join(random.choice(string.ascii_uppercase + string.digits) for i in range(8))
+    gameID = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for i in range(6))
     if request.args.get('game'):
         gameID = request.args.get('game')
         team = 'away'
