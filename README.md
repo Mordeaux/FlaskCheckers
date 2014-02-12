@@ -2,8 +2,10 @@ Flask Checkers
 ==============
 
 By Michael Mordowanec
+
 http://github.com/Mordeaux
-mordowanec.com
+
+http://mordowanec.com
 
 Getting Started
 ===============
@@ -35,5 +37,6 @@ Contributing
 ============
 
 Feel free to fork this project and suggest changes, there are a million ways it could be improved yet. I will try to keep the most current version running here:
-mordowanec.com/checkers
+
+http://mordowanec.com/checkers
 
