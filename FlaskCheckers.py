@@ -33,7 +33,7 @@ def loadJson():
     return gameJSON
 
 @checkers.route('/move')
-def makeMove():
+def move():
     playerMoving = 1
     gameID = request.args.get('game')
     fromTup = tuple([int(i) for i in list(request.args.get('from'))])
@@ -42,7 +42,7 @@ def makeMove():
         playerMoving = 2
     with open(os.path.join(DATA_DIR, gameID+'.json'), 'r') as f:
         gameJSON = f.read()
-    nGameJSON = move(gameJSON, playerMoving, fromTup, toTup)
+    nGameJSON = makeMove(gameJSON, playerMoving, fromTup, toTup)
     if gameJSON == nGameJSON:
         return 'false'
     with open(os.path.join(DATA_DIR,  gameID+'.json'), 'w') as f:

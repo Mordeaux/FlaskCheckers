@@ -18,7 +18,7 @@ def newGame():
     game["board"] = board
     return json.dumps(game)
 
-def move(gameJSON, playerMoving, fromTup, toTup):
+def makeMove(gameJSON, playerMoving, fromTup, toTup):
     game = json.loads(gameJSON)
     if game["turn"] != playerMoving:
         return gameJSON
