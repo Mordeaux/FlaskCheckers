@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="text/javascript" src="{{ url_for('checkers.static', filename='jquery-2.0.0.min.js'></script>
+  <script type="text/javascript" src="{{ url_for('checkers.static', filename='FlaskCheckers.js') }}"></script>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('checkers.static', filename='FlaskCheckers.css') }}" />
+
+  <title>FlaskCheckers</title>
+
+</head>
+
+<body>
+
+
+<div id="winner"></div>
+{% if team == 'away' %}
+<p>You are the black team</p>
+{% endif %}
+{% if team == 'home' %}
+<p>You are the red team<br>
+Give this URL to your opponent: <input type="text" value="mordowanec.com{{ url_for('checkers.game') }}?game={{ gameID }}"></p>
+{% endif %}
+<div id="turn"></div>
+<div id="jumpAgain">You can choose to jump again with the green checker<br>
+If you would prefer not to, click here.</div>
+<h1>Checkers</h1>
+{% for row in range(8) %}
+    {% for column in range(8) %}<div class="chSquare n{{ (row + column) % 2 }}" id="{{ column }}{{ row }}"> </div>{% endfor %}
+    <br>
+{% endfor %}
+
+
+<script>
+var check1 = '<div class="checker home"></div>';
+var check2 = '<div class="checker away"></div>';
+var currentGame;
+var carrying = false;
+var carried;
+var fromParent;
+var toParent;
+var team = ".{{ team }}";
+var oppTurn = true;
+var winner = false;
+function setBoard(game){
+    setWinner(game);
+    $('.checker').remove();
+    carrying = false;
+    carried = null;
+    if((team == '.home' && game.turn == 1) || (team == '.away' && game.turn == 2)){
+        $('#turn').html('Your turn');
+    }
+    else{
+        $('#turn').html('Opponent\'s turn');
+    }
+    for(var i=0; i < game.board.length; i++){
+        for(var j=0; j < game.board[i].length; j++){
+        var id = '#'+i.toString()+j.toString();
+            if(game.board[i][j].player == 1){
+                $(id).html(check1);
+            }
+            else if(game.board[i][j].player == 2){
+                $(id).html(check2);
+            }
+            if(game.board[i][j].king){$(id).children().css('border', '2px solid yellow');}
+        }
+    }
+    if(game.mustMove != false){
+        console.log(game.mustMove);
+        var id = '#'+game.mustMove[0].toString()+game.mustMove[1].toString();
+        console.log(id);
+        $(id).children().css('background-color', 'green');
+        $('#jumpAgain').css('display', 'block');
+    }
+    $('.checker'+team).click(function(){
+        if(!carrying){
+            $(this).css({width:'70%', height:'70%', 'margin-top':'15%'});
+            fromParent = $(this).parent().attr('id');
+            carrying = true;
+            carried = $(this);
+        }
+        else{
+            carried.css({width:'90%', height:'90%', 'margin-top':'5%'});
+            $(this).css({width:'70%', height:'70%', 'margin-top':'15%'});
+            fromParent = $(this).parent().attr('id');
+            carried = $(this);
+        }
+    });
+
+}
+function checkStatus(){
+    if (oppTurn && !winner){
+        console.log('checking');
+        $.get("{{ url_for('checkers.isTurn') }}?player={{ team }}&game={{ gameID }}")
+        .success(function(data){
+            if(data == 'true'){
+                oppTurn = false;
+                $.get("{{ url_for('checkers.loadJson') }}?game={{ gameID }}")
+                .success(function(data){
+                     currentGame = $.parseJSON(data);
+                     setBoard(currentGame);
+                }); 
+            }
+            else{setTimeout('checkStatus()', 2500);}
+        });
+    }
+}
+function setWinner(game){
+    if(game["winner"] == '{{ team }}'){
+        $('#winner').html('YOU WIN!');
+        winner = true;
+    }
+    else if(game["winner"] != false){
+        $('#winner').html('You lose...');
+        winner = true;
+    }
+
+}
+$(document).ready(function(){
+    $.get("{{ url_for('checkers.loadJson') }}?game={{ gameID }}")
+    .success(function(data){
+        currentGame = $.parseJSON(data);
+        setBoard(currentGame);
+        checkStatus();
+        console.log('setInitial');
+        $('.chSquare.n1').click(function(){
+            if(carrying && !oppTurn && $(this).children().length == 0){
+                $.get("{{ url_for('checkers.move') }}?from="+fromParent+"&to="+$(this).attr('id')+"&player={{ team }}&game={{ gameID }}")
+                .success(function(data){
+                    if(data != 'false'){
+                         setBoard($.parseJSON(data));
+                         console.log(data);
+                         oppTurn = true
+                         checkStatus();
+                    }
+                     else{console.log('false');}
+                }); 
+            }
+        });
+        $('#jumpAgain').click(function(){
+            $.get("{{ url_for('checkers.noJump') }}?game={{ gameID }}&player={{ team }}")
+            .success(function(data){
+                setBoard($.parseJSON(data));
+                $('#jumpAgain').css('display', 'none');
+            });
+        });
+   });
+});
+</script>
+</body>
+</html>

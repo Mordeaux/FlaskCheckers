@@ -1,0 +1,64 @@
+body {
+    background-color:#122;
+    width:60%;
+    margin-left:auto;
+    margin-right:auto;
+    overflow-y:scroll;
+    font-family:tahoma, sans-serif;
+    color:#aaa;
+}
+a {
+    text-decoration:none;
+    color:#9bc;
+}
+
+.chSquare{
+    display:inline-block;
+    border:2px black solid;
+    width:50px;
+    height:50px;
+    }
+.n1{
+    background-color:#aaa;
+    }
+.n0{
+    background-color:#344;
+    }
+
+.home{
+    background-color:red;
+    }
+.away{
+    background-color:black;
+    }
+.checker{
+    width:90%;
+    height:90%;
+    margin:auto;
+    margin-top:5%;
+    border-radius:100%;
+    }
+#jumpAgain{
+    display:none;
+    }
+@media only screen and (max-width : 800px){
+    body{
+        width:100%;
+    }
+}
+@media only screen and (max-device-width : 480px){
+    body {
+        width:100%;
+        }
+}
+@media only screen and (max-width : 321px)  {
+    body{
+        width:100%;
+    }
+    .chSquare{
+        width:12%;
+        height:0;
+        padding-bottom:100%;
+    }
+
+}
