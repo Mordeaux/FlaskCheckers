@@ -1,5 +1,5 @@
 import string, random, os, json
-from flask import Blueprint, render_template, send_file, request, redirect
+from flask import Blueprint, render_template, request
 from logic import *
 
 directory = os.path.dirname(__file__)

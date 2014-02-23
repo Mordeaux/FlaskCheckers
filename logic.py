@@ -1,4 +1,5 @@
-import json
+import json, os
+directory = os.path.dirname(__file__)
 
 def newGame():
     game = {"turn":1, "mustMove":False, "winner":False}
@@ -174,25 +175,66 @@ def canKingMoveAgain(game, fromTup, toTup):
         return False
 
 def checkWinner(game):
-    player1 = False
-    player2 = False
-    for i in range(8):
-        if not player1 or not player2:
-            for j in range(8):
-                if game["board"][i][j] not in [3, 0]:
-                    if game["board"][i][j]['player'] == 1:
-                        player1 = True
-                    elif game["board"][i][j]['player'] == 2:
-                        player2 = True
-    if not player1:
-        return 'away'
-    elif not player2:
-        return 'home'
+    moves = getAvailableMoves(game)
+    if moves: return False
     else:
-        return False
+        if game['turn'] == 1: return 'away'
+        else: return 'home'
+#can we check the winner based only on the available moves function?
+#    player1 = False
+#    player2 = False
+#    for i in range(8):
+#        if not player1 or not player2:
+#            for j in range(8):
+#                if game["board"][i][j] not in [3, 0]:
+#                    if game["board"][i][j]['player'] == 1:
+#                        player1 = True
+#                    elif game["board"][i][j]['player'] == 2:
+#                        player2 = True
+#    if not player1:
+#        return 'away'
+#    elif not player2:
+#        return 'home'
+#    else:
+#        moves = getAvailableMoves(game)
+#        if moves: return False
+#        else:
+#            if game['turn'] == 1: return 'away'
+#            if game['turn'] == 2: return 'home'
 
-def checkAvailableMoves(game):
+
+def getAvailableMoves(game):
     """I have no idea what the appropriate low-weight algorithm is for this, but technically 
     if your opponent has no available moves you should win."""
-    pass
+    playerMoving = game['turn']
+    moves = []
+    for i in range(8):
+        for j in range(8):
+            if game['board'][i][j] not in [3, 0]:
+                if game['board'][i][j]['player'] == playerMoving:
+                    available = availableMoves(game, i, j)
+                    if available:
+                        moves += available
+    return moves
+
+
+
+def availableMoves(game, i, j):
+    king = game['board'][i][j]['king']
+    player = game['board'][i][j]['player']
+    direction = [1]
+    if player == 2: direction = [-1]
+    if king: direction = [1, -1]
+    moves = []
+    for y in direction:
+        for x in [1, -1]:
+            if i+x in range(8) and j+y in range(8):
+                if game['board'][i+x][j+y] == 3:
+                    moves.append(((i,j), (i+x, j+y)))
+                elif game['board'][i+x][j+y]['player'] != player and i+x*2 in range(8) and j+y*2 in range(8):
+                    if game['board'][i+x*2][j+y*2] == 3:
+                        moves.append(((i,j), (i+x*2, j+x*2))) 
+    return moves
+
+
 
