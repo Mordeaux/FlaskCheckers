@@ -18,8 +18,6 @@ def newGame():
     return game
 
 def getAvailableMoves(game):
-    """I have no idea what the appropriate low-weight algorithm is for this, but technically 
-    if your opponent has no available moves you should win."""
     moves = []
     for i in range(8):
         for j in range(8):
@@ -42,29 +40,27 @@ def availableMoves(game, i, j):
                     moves.append(((i,j), (i+x, j+y)))
                 elif game['board'][i+x][j+y]['player'] != player and i+x*2 in range(8) and j+y*2 in range(8):
                     if game['board'][i+x*2][j+y*2] == 3:
-                        moves.append(((i,j), (i+x*2, j+x*2))) 
+                        moves.append(((i,j), (i+x*2, j+y*2))) 
     return moves
 
 def makeMove(game, fromTup, toTup):
-    if [fromTup, toTup] not in game['moves']:
-        return game
+    if [fromTup, toTup] not in game['moves']: return game
     else:
         rep = getRepr(game)
         piece = game['board'][fromTup[0]][fromTup[1]]
+        if toTup[1] in [0, 7]: piece['king'] = True
         game['board'][fromTup[0]][fromTup[1]] = 3
         game['board'][toTup[0]][toTup[1]] = piece
-        if (fromTup[0] - toTup[0]) % 2 == 1:
-            return nextTurn(game)
+        if (fromTup[0] - toTup[0]) % 2 == 1: return nextTurn(game)
         elif (fromTup[0] - toTup[0]) % 2 == 0:
            betweenTup = (fromTup[0] - (fromTup[0] - toTup[0])/2, 
                          fromTup[1] - (fromTup[1] - toTup[1])/2)
+           print betweenTup
            game['board'][betweenTup[0]][betweenTup[1]] = 3
            mustMove = []
            for tup in availableMoves(game, toTup[0], toTup[1]):
-               if (tup[0][0] - tup[1][0]) % 2 == 0:
-                   mustMove.append(tup)
-           if not mustMove:
-               return nextTurn(game)
+               if (tup[0][0] - tup[1][0]) % 2 == 0: mustMove.append(tup)
+           if not mustMove: return nextTurn(game)
            else:
                game['moves'] = mustMove
                return game
@@ -83,8 +79,6 @@ def getRepr(game):
     turn = game['turn']
     rangeRover = lambda: range(8) if turn == 1 else range(7, -1, -1)
     flipPlayer = lambda player: str(player) if turn == 1 else '1' if player == 2 else '2'
-    print rangeRover()
-    print flipPlayer(1), flipPlayer(2)
     board = game['board']
     for x in rangeRover():
         for y in rangeRover():
@@ -93,8 +87,4 @@ def getRepr(game):
                 if square == 3: rep += '3'
                 elif square['king']: rep += 'k'+flipPlayer(square['player'])
                 else: rep += flipPlayer(square['player'])
-    print rep
-    print len(rep)
-    with open('reps.txt', 'a') as f:
-        f.write(rep + '\n')
     return rep
