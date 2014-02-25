@@ -1,17 +1,13 @@
 import string, random, os, json
 from flask import Blueprint, render_template, request
-from logic import *
+from logic import makeMove, newGame, getAvailableMoves
 
 directory = os.path.dirname(__file__)
 DATA_DIR = os.path.join(directory, 'data')
 if not os.path.exists(DATA_DIR):
     os.mkdir(DATA_DIR)
 
-
-
 checkers = Blueprint('checkers', __name__, template_folder='templates', static_folder='static')
-
-
 
 @checkers.route('/')
 def game():
@@ -22,7 +18,7 @@ def game():
         team = 'away'
     if team == 'home':
         with open(os.path.join(DATA_DIR, gameID+'.json'), 'w') as f:
-            f.write(newGame())
+            f.write(json.dumps(newGame()))
     return render_template('FlaskCheckers.html', team=team, gameID=gameID)
 
 @checkers.route('/loadJson')
@@ -34,20 +30,15 @@ def loadJson():
 
 @checkers.route('/move')
 def move():
-    playerMoving = 1
     gameID = request.args.get('game')
-    fromTup = tuple([int(i) for i in list(request.args.get('from'))])
-    toTup = tuple([int(i) for i in list(request.args.get('to'))])
-    if request.args.get('player') == 'away':
-        playerMoving = 2
+    fromTup = [int(i) for i in list(request.args.get('from'))]
+    toTup = [int(i) for i in list(request.args.get('to'))]
     with open(os.path.join(DATA_DIR, gameID+'.json'), 'r') as f:
-        gameJSON = f.read()
-    nGameJSON = tryMove(gameJSON, playerMoving, fromTup, toTup)
-    if gameJSON == nGameJSON:
-        return 'false'
+        game = json.loads(f.read())
+    gameJSON = json.dumps(makeMove(game, fromTup, toTup))
     with open(os.path.join(DATA_DIR,  gameID+'.json'), 'w') as f:
-        f.write(nGameJSON)
-    return nGameJSON
+        f.write(gameJSON)
+    return gameJSON
 
 @checkers.route('/isTurn')
 def isTurn():
@@ -55,12 +46,8 @@ def isTurn():
     player = request.args.get('player')
     with open(os.path.join(DATA_DIR, gameID+'.json'), 'r') as f:
         turn = json.loads(f.read())['turn']
-    if turn == 1 and player == 'home':
-        return 'true'
-    if turn == 2 and player == 'away':
-        return 'true'
-    else:
-        return 'false'
+    isTurn = lambda:'true' if turn == 1 and player == 'home' or turn == 2 and player == 'away' else 'false'
+    return isTurn()
 
 @checkers.route('/noJump')
 def noJump():
@@ -68,10 +55,8 @@ def noJump():
     player = request.args.get('player')
     with open(os.path.join(DATA_DIR, gameID+'.json'), 'r') as f:
         game = json.loads(f.read())
-    game['mustMove'] = False
-    game['turn'] = 1
-    if player == 'home':
-        game['turn'] = 2
+    game['turn'] = 2 if player == 'home' else 1
+    game['move'] = getAvailableMoves(game)
     gameJSON = json.dumps(game)
     with open(os.path.join(DATA_DIR, gameID+'.json'), 'w') as f:
         f.write(gameJSON)

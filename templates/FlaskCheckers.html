@@ -65,13 +65,6 @@ function setBoard(game){
             if(game.board[i][j].king){$(id).children().css('border', '2px solid yellow');}
         }
     }
-    if(game.mustMove != false){
-        console.log(game.mustMove);
-        var id = '#'+game.mustMove[0].toString()+game.mustMove[1].toString();
-        console.log(id);
-        $(id).children().css('background-color', 'green');
-        $('#jumpAgain').css('display', 'block');
-    }
     $('.checker'+team).click(function(){
         if(!carrying){
             $(this).css({width:'70%', height:'70%', 'margin-top':'15%'});
