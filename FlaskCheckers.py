@@ -46,8 +46,7 @@ def isTurn():
     player = request.args.get('player')
     with open(os.path.join(DATA_DIR, gameID+'.json'), 'r') as f:
         turn = json.loads(f.read())['turn']
-    isTurn = lambda:'true' if turn == 1 and player == 'home' or turn == 2 and player == 'away' else 'false'
-    return isTurn()
+    return 'true' if player == turn else 'false'
 
 @checkers.route('/noJump')
 def noJump():
@@ -55,7 +54,7 @@ def noJump():
     player = request.args.get('player')
     with open(os.path.join(DATA_DIR, gameID+'.json'), 'r') as f:
         game = json.loads(f.read())
-    game['turn'] = 2 if player == 'home' else 1
+    game['turn'] = 2 if player == 1 else 1
     game['move'] = getAvailableMoves(game)
     gameJSON = json.dumps(game)
     with open(os.path.join(DATA_DIR, gameID+'.json'), 'w') as f:

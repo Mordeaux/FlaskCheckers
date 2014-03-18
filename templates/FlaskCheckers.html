@@ -34,12 +34,11 @@ If you would prefer not to, click here.</div>
 <script>
 var check1 = '<div class="checker home"></div>';
 var check2 = '<div class="checker away"></div>';
-var currentGame;
 var carrying = false;
 var carried;
-var fromParent;
-var toParent;
-var team = ".{{ team }}";
+var fromTup;
+var teamClass = ".{{ if player == 2 }}away{{ else }}home{{ endif }}";
+var team = {{ player }}
 var oppTurn = true;
 var winner = false;
 function setBoard(game){
@@ -47,35 +46,37 @@ function setBoard(game){
     $('.checker').remove();
     carrying = false;
     carried = null;
-    if((team == '.home' && game.turn == 1) || (team == '.away' && game.turn == 2)){
+    if(game.turn == team){
         $('#turn').html('Your turn');
     }
     else{
         $('#turn').html('Opponent\'s turn');
     }
+    var pieces
     for(var i=0; i < game.board.length; i++){
         for(var j=0; j < game.board[i].length; j++){
-        var id = '#'+i.toString()+j.toString();
-            if(game.board[i][j].player == 1){
-                $(id).html(check1);
-            }
-            else if(game.board[i][j].player == 2){
-                $(id).html(check2);
-            }
-            if(game.board[i][j].king){$(id).children().css('border', '2px solid yellow');}
-        }
+            var id = '#'+flipper(i).toString()+flipper(j).toString();
+            
+//            if(game.board[i][j].player == 1){
+//                $(id).html(check1);
+//            }
+//            else if(game.board[i][j].player == 2){
+//                $(id).html(check2);
+//            }
+//            if(game.board[i][j].king){$(id).children().css('border', '2px solid yellow');}
+//        }
     }
     $('.checker'+team).click(function(){
         if(!carrying){
             $(this).css({width:'70%', height:'70%', 'margin-top':'15%'});
-            fromParent = $(this).parent().attr('id');
+            fromTup = $(this).parent().attr('id');
             carrying = true;
             carried = $(this);
         }
         else{
             carried.css({width:'90%', height:'90%', 'margin-top':'5%'});
             $(this).css({width:'70%', height:'70%', 'margin-top':'15%'});
-            fromParent = $(this).parent().attr('id');
+            fromTup = $(this).parent().attr('id');
             carried = $(this);
         }
     });
@@ -83,15 +84,13 @@ function setBoard(game){
 }
 function checkStatus(){
     if (oppTurn && !winner){
-        console.log('checking');
         $.get("{{ url_for('checkers.isTurn') }}?player={{ team }}&game={{ gameID }}")
         .success(function(data){
             if(data == 'true'){
                 oppTurn = false;
                 $.get("{{ url_for('checkers.loadJson') }}?game={{ gameID }}")
                 .success(function(data){
-                     currentGame = $.parseJSON(data);
-                     setBoard(currentGame);
+                     setBoard($.parseJSON(data));
                 }); 
             }
             else{setTimeout('checkStatus()', 2500);}
@@ -112,13 +111,12 @@ function setWinner(game){
 $(document).ready(function(){
     $.get("{{ url_for('checkers.loadJson') }}?game={{ gameID }}")
     .success(function(data){
-        currentGame = $.parseJSON(data);
-        setBoard(currentGame);
+        setBoard($.parseJSON(data));
         checkStatus();
-        console.log('setInitial');
+
         $('.chSquare.n1').click(function(){
             if(carrying && !oppTurn && $(this).children().length == 0){
-                $.get("{{ url_for('checkers.move') }}?from="+fromParent+"&to="+$(this).attr('id')+"&player={{ team }}&game={{ gameID }}")
+                $.get("{{ url_for('checkers.move') }}?from="+fromTup+"&to="+$(this).attr('id')+"&player={{ team }}&game={{ gameID }}")
                 .success(function(data){
                     if(data != 'false'){
                          setBoard($.parseJSON(data));
@@ -130,6 +128,8 @@ $(document).ready(function(){
                 }); 
             }
         });
+
+
         $('#jumpAgain').click(function(){
             $.get("{{ url_for('checkers.noJump') }}?game={{ gameID }}&player={{ team }}")
             .success(function(data){

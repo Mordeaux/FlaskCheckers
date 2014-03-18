@@ -23,9 +23,7 @@ def getAvailableMoves(game):
         for j in range(8):
             if game['board'][i][j] not in [3, 0]:
                 if game['board'][i][j]['player'] == game['turn']:
-                    available = availableMoves(game, i, j)
-                    if available:
-                        moves += available
+                    moves += availableMoves(game, i, j)
     return moves
 
 def availableMoves(game, i, j):
@@ -77,9 +75,12 @@ def nextTurn(game):
 def getRepr(game):
     rep = ''
     turn = game['turn']
+    moves = game['moves']
+    board = game['board']
     rangeRover = lambda: range(8) if turn == 1 else range(7, -1, -1)
     flipPlayer = lambda player: str(player) if turn == 1 else '1' if player == 2 else '2'
-    board = game['board']
+    flipTup = lambda tup: [7 - tup[0], 7 - tup[1]]
+    availableMoves = moves if turn == 1 else [[flipTup(move[0]), flipTup(move[1])] for move in moves]
     for x in rangeRover():
         for y in rangeRover():
             if (x+y)%2 == 1:
@@ -87,4 +88,10 @@ def getRepr(game):
                 if square == 3: rep += '3'
                 elif square['king']: rep += 'k'+flipPlayer(square['player'])
                 else: rep += flipPlayer(square['player'])
+    print rep
+    print 'turn: ' + str(turn)
+    print availableMoves
     return rep
+
+
+
