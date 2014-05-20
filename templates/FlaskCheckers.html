@@ -37,7 +37,7 @@ var check2 = '<div class="checker away"></div>';
 var carrying = false;
 var carried;
 var fromTup;
-var teamClass = ".{{ if player == 2 }}away{{ else }}home{{ endif }}";
+var teamClass = ".{% if player == 2 %}away{% else %}home{% endif %}";
 var team = {{ player }}
 var oppTurn = true;
 var winner = false;
